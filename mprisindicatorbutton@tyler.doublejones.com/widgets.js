@@ -143,7 +143,7 @@ class CoverArtIOHandler {
     if (this._singleton) {
       this._singleton._callbacks.clear();
       this._singleton._callbacks = null;
-      this._singleton._cancellables.forEach(cancellable => {
+      this._singleton._cancellables.forEach((cancellable) => {
         if (!cancellable.is_cancelled()) {
           cancellable.cancel();
         }
@@ -255,7 +255,9 @@ const CoverIcon = GObject.registerClass(
 
     _onDestroy() {
       if (this._signals) {
-        this._signals.forEach(signal => signal.obj.disconnect(signal.signalId));
+        this._signals.forEach((signal) =>
+          signal.obj.disconnect(signal.signalId)
+        );
         this._signals = null;
         this._fallback_gicon = null;
         this._useFallback = null;
@@ -313,7 +315,7 @@ const MediaButton = GObject.registerClass(
         this.connect("touch-event", this._onTouchEvent.bind(this)),
         this.connect("key-press-event", this._onKeyPressEvent.bind(this)),
         this.connect("destroy", () => {
-          signalIds.forEach(signalId => this.disconnect(signalId));
+          signalIds.forEach((signalId) => this.disconnect(signalId));
           this._active = null;
         }),
       ];
@@ -521,7 +523,9 @@ const MainItem = GObject.registerClass(
 
     _onDestroy() {
       if (this._signals) {
-        this._signals.forEach(signal => signal.obj.disconnect(signal.signalId));
+        this._signals.forEach((signal) =>
+          signal.obj.disconnect(signal.signalId)
+        );
         this._signals = null;
       }
     }
@@ -628,7 +632,9 @@ const MediaControlsItem = GObject.registerClass(
 
     _onDestroy() {
       if (this._signals) {
-        this._signals.forEach(signal => signal.obj.disconnect(signal.signalId));
+        this._signals.forEach((signal) =>
+          signal.obj.disconnect(signal.signalId)
+        );
         this._signals = null;
       }
     }
@@ -879,7 +885,7 @@ const TrackItem = GObject.registerClass(
       this.add_child(this.coverIcon);
       this.info = new TrackInfo();
       this.add_child(this.info);
-      this.pushSignal(this.info, "notify::height", info => {
+      this.pushSignal(this.info, "notify::height", (info) => {
         let size = Math.ceil(
           info.height > 0
             ? info.height
@@ -971,7 +977,9 @@ const SubMenu = GObject.registerClass(
 
     setProxy(proxy) {
       if (this._proxy) {
-        this._signals.forEach(signal => signal.obj.disconnect(signal.signalId));
+        this._signals.forEach((signal) =>
+          signal.obj.disconnect(signal.signalId)
+        );
         this._signals = [];
         this._proxy.destroy();
         this._current_obj_id = "";
@@ -979,7 +987,7 @@ const SubMenu = GObject.registerClass(
       }
       this._proxy = proxy;
 
-      let updatePlayerName = proxy => {
+      let updatePlayerName = (proxy) => {
         let listTile =
           proxy.list_title == "TrackList"
             ? TRANSLATED["TrackList"]
@@ -998,16 +1006,16 @@ const SubMenu = GObject.registerClass(
             : proxy.player_name;
         this.menu
           ._getMenuItems()
-          .forEach(item => item.updatePlayerName(proxy.player_name));
+          .forEach((item) => item.updatePlayerName(proxy.player_name));
       };
 
       updatePlayerName(proxy);
 
-      this.pushSignal(this._proxy, "notify::list-title", proxy => {
+      this.pushSignal(this._proxy, "notify::list-title", (proxy) => {
         updatePlayerName(proxy);
       });
 
-      this.pushSignal(this._proxy, "notify::show-list", proxy => {
+      this.pushSignal(this._proxy, "notify::show-list", (proxy) => {
         if (!proxy.show_list) {
           if (this.menu.isOpen) {
             this.menu.toggle();
@@ -1017,11 +1025,11 @@ const SubMenu = GObject.registerClass(
         }
         this.visible = proxy.show_list;
       });
-      this.pushSignal(this._proxy, "notify::current-obj-id", proxy => {
+      this.pushSignal(this._proxy, "notify::current-obj-id", (proxy) => {
         let current_obj_id = proxy.current_obj_id;
         if (this._current_obj_id !== current_obj_id) {
           this._current_obj_id = current_obj_id;
-          this.menu._getMenuItems().forEach(i => {
+          this.menu._getMenuItems().forEach((i) => {
             let ornament =
               current_obj_id === i.obj_id ? Ornament.DOT : Ornament.NONE;
             i.setOrnament(ornament);
@@ -1032,14 +1040,14 @@ const SubMenu = GObject.registerClass(
         this._proxy,
         "metadata-changed",
         (_, obj_id, ...metadata) => {
-          let item = this.menu._getMenuItems().find(i => i.obj_id === obj_id);
+          let item = this.menu._getMenuItems().find((i) => i.obj_id === obj_id);
           if (item) {
             this._current_obj_id = "";
             item.updateMetadata(metadata);
           }
         }
       );
-      this.pushSignal(this._proxy, "new-metadata", proxy => {
+      this.pushSignal(this._proxy, "new-metadata", (proxy) => {
         this._current_obj_id = "";
         let items = this.menu._getMenuItems();
         let metadata = proxy.metadata;
@@ -1054,11 +1062,11 @@ const SubMenu = GObject.registerClass(
           }
         });
         // Destroy any submenu items we don't need.
-        items.slice(metadata.length).forEach(i => i.destroy());
+        items.slice(metadata.length).forEach((i) => i.destroy());
       });
       this.pushSignal(this, "destroy", () => {
         if (this._proxy) {
-          this._signals.forEach(signal =>
+          this._signals.forEach((signal) =>
             signal.obj.disconnect(signal.signalId)
           );
           this._proxy.destroy();
@@ -1563,9 +1571,12 @@ var MprisIndicatorButton = GObject.registerClass(
 
       this.hide();
 
-      this.container = new St.BoxLayout();
+      const container = new St.BoxLayout({
+        y_expand: false,
+        y_align: Clutter.ActorAlign.CENTER,
+      });
       let indicator = new St.Icon({
-          style_class: "system-status-icon",
+          style_class: "system-status-icon-mpris",
         }),
         artistIndicator = new St.Label({
           text: "",
@@ -1605,9 +1616,9 @@ var MprisIndicatorButton = GObject.registerClass(
       let getPlayers = () =>
         this.menu
           ._getMenuItems()
-          .filter(i => i instanceof Player && i.actor.visible);
+          .filter((i) => i instanceof Player && i.actor.visible);
 
-      let getLastActivePlayer = players => {
+      let getLastActivePlayer = (players) => {
         players = players || getPlayers();
         return players.length == 1
           ? players[0]
@@ -1647,7 +1658,7 @@ var MprisIndicatorButton = GObject.registerClass(
             activePlayer.playbackStatus
           );
         }
-        players.forEach(player => {
+        players.forEach((player) => {
           player._mpris.bind_property(
             "title",
             titleIndicator,
@@ -1678,8 +1689,8 @@ var MprisIndicatorButton = GObject.registerClass(
           if (visible) {
             this.menu
               ._getMenuItems()
-              .filter(i => i instanceof PopupSeparatorMenuItem)
-              .forEach(sep => {
+              .filter((i) => i instanceof PopupSeparatorMenuItem)
+              .forEach((sep) => {
                 this.menu._updateSeparatorVisibility(sep);
               });
           } else {
@@ -1692,8 +1703,8 @@ var MprisIndicatorButton = GObject.registerClass(
       pushSignal(St.TextureCache.get_default(), "icon-theme-changed", () => {
         this.menu
           ._getMenuItems()
-          .filter(i => i instanceof Player)
-          .forEach(p => p.refreshIcon());
+          .filter((i) => i instanceof Player)
+          .forEach((p) => p.refreshIcon());
       });
 
       pushSignal(this, "key-press-event", (actor, event) => {
@@ -1779,7 +1790,7 @@ var MprisIndicatorButton = GObject.registerClass(
         proxyHandler,
         "add-player",
         (proxyHandler, busName, mpris, trackList, playList) => {
-          let player = getPlayers().find(p => p.busName === busName);
+          let player = getPlayers().find((p) => p.busName === busName);
           if (player) {
             player.setProxies(mpris, trackList, playList, updateIndicator);
           } else {
@@ -1797,7 +1808,7 @@ var MprisIndicatorButton = GObject.registerClass(
       );
 
       pushSignal(proxyHandler, "remove-player", (proxyHandler, busName) => {
-        this.menu._getMenuItems().forEach(i => {
+        this.menu._getMenuItems().forEach((i) => {
           if (i.busName === busName) {
             i.destroy();
           } else if (this.menu.isOpen && i instanceof PopupSeparatorMenuItem) {
@@ -1810,7 +1821,7 @@ var MprisIndicatorButton = GObject.registerClass(
       let toolTip = new ToolTip(this);
 
       pushSignal(this, "destroy", () => {
-        signals.forEach(signal => signal.obj.disconnect(signal.signalId));
+        signals.forEach((signal) => signal.obj.disconnect(signal.signalId));
         CoverArtIOHandler.destroy();
         proxyHandler.destroy();
       });
