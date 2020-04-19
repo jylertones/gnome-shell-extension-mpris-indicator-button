@@ -1,6 +1,6 @@
 .system-status-icon-mpris {
-  height: 1.4em;
-  width: 1.4em;
+  icon-size: 16px;
+  padding-right: 0.4em;
 }
 
 .player-quit-button {
