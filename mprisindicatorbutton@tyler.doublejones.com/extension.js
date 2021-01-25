@@ -38,7 +38,7 @@ function enable() {
     if (!Panel.statusArea[ROLE]) {
         stockMpris.visible = false;
         stockMpris._shouldShow = () => false;
-        Panel.addToStatusArea(ROLE, new MprisIndicatorButton(), 100, 'left');
+        Panel.addToStatusArea(ROLE, new MprisIndicatorButton());
     }
 }
 
